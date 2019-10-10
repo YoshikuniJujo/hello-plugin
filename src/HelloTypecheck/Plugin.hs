@@ -10,6 +10,7 @@ import TcPluginM
 
 plugin :: Plugin
 plugin = defaultPlugin {
+	installCoreToDos = install,
 	tcPlugin = const $ Just myTcPlugin
 	}
 
@@ -33,3 +34,10 @@ myTypechecker g _ w = do
 	tcPluginTrace "given" (ppr g)
 	tcPluginTrace "wanted" (ppr w)
 	return $ TcPluginOk [] []
+
+
+install :: [CommandLineOption] -> [CoreToDo] -> CoreM [CoreToDo]
+install opt todo = do
+	putMsgS `mapM_` opt
+	putMsgS "Hello, Typechecker!"
+	return todo
