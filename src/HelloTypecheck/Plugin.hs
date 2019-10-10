@@ -20,7 +20,7 @@ defaultTcPlugin = const Nothing
 myTcPlugin :: TcPlugin
 myTcPlugin = TcPlugin {
 	tcPluginInit = do
-		tcPluginTrace "foobar" (ppr "baz")
+		tcPluginTrace "HelloTypeCheck: init" (ppr "baz")
 		return (),
 	tcPluginSolve = const $ myTypechecker,
 	tcPluginStop = const $ return ()
@@ -28,11 +28,11 @@ myTcPlugin = TcPlugin {
 
 myTypechecker :: [Ct] -> [Ct] -> [Ct] -> TcPluginM TcPluginResult
 myTypechecker _ _ [] = do
-	tcPluginTrace "foobar" (ppr "baz")
+	tcPluginTrace "HelloTypeCheck: empty wanted" (ppr "baz")
 	return $ TcPluginOk [] []
 myTypechecker g _ w = do
-	tcPluginTrace "given" (ppr g)
-	tcPluginTrace "wanted" (ppr w)
+	tcPluginTrace "HelloTypeCheck: given" (ppr g)
+	tcPluginTrace "HelloTypeCheck: wanted" (ppr w)
 	return $ TcPluginOk [] []
 
 
