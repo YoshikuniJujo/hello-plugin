@@ -30,11 +30,13 @@ myTcPlugin = TcPlugin {
 
 myTypechecker :: [Ct] -> [Ct] -> [Ct] -> TcPluginM TcPluginResult
 myTypechecker _ _ [] = do
-	tcPluginTrace "HelloTypeCheck.Plugin: empty wanted" (ppr "baz")
+	tcPluginTrace "HelloTypecheck.Plugin: empty wanted" (ppr "baz")
 	return $ TcPluginOk [] []
 myTypechecker g _ w = do
 	tcPluginTrace "HelloTypecheck.Plugin: given" (ppr g)
+	tcPluginTrace "GIVEN: " . text . unlines $ getNatEquality <$> g
 	tcPluginTrace "HelloTypecheck.Plugin: wanted" (ppr w)
+	tcPluginTrace "WANTED: " . text . unlines $ getNatEquality <$> w
 	return $ TcPluginOk [] []
 
 
@@ -43,3 +45,9 @@ install opt todo = do
 	putMsgS `mapM_` opt
 	putMsgS "Hello, Typechecker!"
 	return todo
+
+getNatEquality :: Ct -> String
+getNatEquality ct = case classifyPredType $ ctEvPred $ ctEvidence ct of
+	EqPred NomEq t1 t2 ->
+		"EqPred NomEq (" ++ showSDocUnsafe (ppr t1) ++ ") (" ++ showSDocUnsafe (ppr t2) ++ ")"
+	_ -> "NO EqPred"
