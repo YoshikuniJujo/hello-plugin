@@ -54,7 +54,7 @@ install opt todo = do
 getNatEquality :: Ct -> SDoc
 getNatEquality ct = case classifyPredType $ ctEvPred $ ctEvidence ct of
 	EqPred NomEq t1 t2 ->
-		"EqPred NomEq (" <> ppr t1 <> ") (" <> ppr t2 <> ")"
+		"EqPred NomEq (" <> showType t1 <> ") (" <> showType t2 <> ")"
 	_ -> "NO EqPred"
 
 showType :: Type -> SDoc
