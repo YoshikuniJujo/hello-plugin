@@ -1,12 +1,17 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_GHC -Wall -fno-warn-tabs #-}
 
 module HelloTypecheck.Plugin where
+
+import Prelude hiding ((<>))
 
 import GhcPlugins
 
 -- import Plugins
 import TcRnTypes
 import TcPluginM
+
+import TyCoRep
 
 plugin :: Plugin
 plugin = defaultPlugin {
@@ -20,23 +25,23 @@ defaultTcPlugin = const Nothing
 myTcPlugin :: TcPlugin
 myTcPlugin = TcPlugin {
 	tcPluginInit = do
-		tcPluginTrace "HelloTypecheck.Plugin: init" (ppr "baz")
+		tcPluginTrace "HelloTypecheck.Plugin: init" "baz"
 		return (),
 	tcPluginSolve = const $ myTypechecker,
 	tcPluginStop = const $ do
-		tcPluginTrace "HelloTypecheck.Plugin: stop" (ppr "foobar")
+		tcPluginTrace "HelloTypecheck.Plugin: stop" "foobar"
 		return ()
 	}
 
 myTypechecker :: [Ct] -> [Ct] -> [Ct] -> TcPluginM TcPluginResult
 myTypechecker _ _ [] = do
-	tcPluginTrace "HelloTypecheck.Plugin: empty wanted" (ppr "baz")
+	tcPluginTrace "HelloTypecheck.Plugin: empty wanted" "baz"
 	return $ TcPluginOk [] []
 myTypechecker g _ w = do
 	tcPluginTrace "HelloTypecheck.Plugin: given" (ppr g)
-	tcPluginTrace "GIVEN: " . text . unlines $ getNatEquality <$> g
+	tcPluginTrace "GIVEN: " . vcat $ getNatEquality <$> g
 	tcPluginTrace "HelloTypecheck.Plugin: wanted" (ppr w)
-	tcPluginTrace "WANTED: " . text . unlines $ getNatEquality <$> w
+	tcPluginTrace "WANTED: " . vcat $ getNatEquality <$> w
 	return $ TcPluginOk [] []
 
 
@@ -46,8 +51,12 @@ install opt todo = do
 	putMsgS "Hello, Typechecker!"
 	return todo
 
-getNatEquality :: Ct -> String
+getNatEquality :: Ct -> SDoc
 getNatEquality ct = case classifyPredType $ ctEvPred $ ctEvidence ct of
 	EqPred NomEq t1 t2 ->
-		"EqPred NomEq (" ++ showSDocUnsafe (ppr t1) ++ ") (" ++ showSDocUnsafe (ppr t2) ++ ")"
+		"EqPred NomEq (" <> ppr t1 <> ") (" <> ppr t2 <> ")"
 	_ -> "NO EqPred"
+
+showType :: Type -> SDoc
+showType (TyVarTy v) = text "TyVarTy" <+> ppr v
+showType t = text "Other Type" <+> ppr t
