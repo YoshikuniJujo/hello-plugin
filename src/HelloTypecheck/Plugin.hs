@@ -18,7 +18,9 @@ defaultTcPlugin = const Nothing
 
 myTcPlugin :: TcPlugin
 myTcPlugin = TcPlugin {
-	tcPluginInit = return (),
+	tcPluginInit = do
+		tcPluginTrace "foobar" (ppr "baz")
+		return (),
 	tcPluginSolve = const $ myTypechecker,
 	tcPluginStop = const $ return ()
 	}
