@@ -10,6 +10,7 @@ plugin = defaultPlugin {
 	}
 
 install :: [CommandLineOption] -> [CoreToDo] -> CoreM [CoreToDo]
-install _ todo = do
+install opt todo = do
+	putMsgS `mapM_` opt
 	putMsgS "Hello!"
 	return todo
