@@ -15,5 +15,5 @@ data List :: Nat -> * -> * where
 
 deriving instance Show a => Show (List l a)
 
--- tail_ :: List (n + 1) a -> List n a
--- tail_ (_ ::: as) = as
+tail_ :: List (n + 1) a -> List n a
+tail_ (_ ::: as) = as
