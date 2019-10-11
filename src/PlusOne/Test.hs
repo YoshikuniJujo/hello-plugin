@@ -17,3 +17,7 @@ deriving instance Show a => Show (List l a)
 
 tail_ :: List (n + 1) a -> List n a
 tail_ (_ ::: as) = as
+tail_ _ = error "never occur"
+
+-- tail__ :: List n a -> List (n - 1) a
+-- tail__ (_ ::: as) = as
