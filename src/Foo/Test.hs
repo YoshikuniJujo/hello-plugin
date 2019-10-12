@@ -19,8 +19,8 @@ bar = id
 -- three :: Int
 -- three = foo 3
 
--- eight :: Proxy 8
--- eight = bar Proxy
+eight :: Proxy 8
+eight = bar Proxy
 
 class Baz (s :: Symbol)
 
