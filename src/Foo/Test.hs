@@ -11,13 +11,13 @@ class Foo a
 foo :: Foo a => a -> a
 foo = id
 
+three :: Int
+three = foo 3
+
 class Bar (n :: Nat)
 
 bar :: Bar n => Proxy n -> Proxy n
 bar = id
-
--- three :: Int
--- three = foo 3
 
 eight :: Proxy 8
 eight = bar Proxy

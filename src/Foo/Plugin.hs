@@ -12,7 +12,7 @@ import TcRnTypes
 import TcEvidence
 import TyCoRep
 
-import Literal
+-- import Literal
 
 plugin :: Plugin
 plugin = defaultPlugin { tcPlugin = const . Just $ TcPlugin {
@@ -24,13 +24,27 @@ solveFoo :: [Ct] -> [Ct] -> [Ct] -> TcPluginM TcPluginResult
 solveFoo _ _ [] = return $ TcPluginOk [] []
 solveFoo gs _ ws = do
 	tcPluginTrace "!Foo.Plugin: " $ ppr gs $$ ppr ws
+	tcPluginTrace "lookFoo: " . cat . catMaybes $ lookFoo <$> ws
 	tcPluginTrace "lookBar: " . cat . catMaybes $ lookBar <$> ws
 	tcPluginTrace "lookBaz: " . cat . catMaybes $ lookBaz <$> ws
 	let	ok = catMaybes $ barBazOk <$> ws
 	return $ TcPluginOk ok []
 
 barBazOk :: Ct -> Maybe (EvTerm, Ct)
-barBazOk ct = barOk ct `mplus` bazOk ct
+barBazOk ct = fooOk ct `mplus` barOk ct `mplus` bazOk ct
+
+lookFoo :: Ct -> Maybe SDoc
+lookFoo (CDictCan ev cl [_t@(TyConApp tc [])] cpsc) = Just
+	$ "CDictCan" $$
+		"cc_ev =" <+> ppr ev $$
+		"cc_class =" <+> ppr cl $$
+		"cc_tyargs =" <+> ppr tc $$
+		"cc_pend_sc =" <+> ppr cpsc
+lookFoo _ = Nothing
+
+fooOk :: Ct -> Maybe (EvTerm, Ct)
+fooOk ct@(CDictCan _ev _cl [t@(TyConApp _tc [])] _cpsc) = Just (EvExpr $ Type t, ct)
+fooOk _ = Nothing
 
 lookBar :: Ct -> Maybe SDoc
 lookBar (CDictCan ev cl [LitTy (NumTyLit cta)] cpsc) = Just
@@ -59,7 +73,7 @@ lookBaz (CDictCan ev cl [LitTy (StrTyLit x)] cpsc) = Just
 lookBaz _ = Nothing
 
 bazOk :: Ct -> Maybe (EvTerm, Ct)
-bazOk ct@(CDictCan ev cl [LitTy (StrTyLit x)] cpsc)
+bazOk ct@(CDictCan _ev _cl [LitTy (StrTyLit x)] _cpsc)
 --	| x == "hello" = Just (EvExpr $ Lit $ LitLabel x Nothing IsData, ct)
 --	| x == "hello" = Just (EvExpr $ Lit $ LitLabel "booboo" Nothing IsData, ct)
 --	| x == "hello" = Just (EvExpr $ Lit $ LitLabel undefined Nothing IsData, ct)
