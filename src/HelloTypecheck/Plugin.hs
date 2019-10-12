@@ -17,12 +17,13 @@ plugin :: Plugin
 plugin = defaultPlugin {
 	installCoreToDos = install,
 	tcPlugin = const $ Just myTcPlugin
+--	tcPlugin = myTcPlugin
 	}
 
-defaultTcPlugin :: [CommandLineOption] -> Maybe TcPlugin
+defaultTcPlugin :: [CommandLineOption] -> Maybe GhcPlugins.TcPlugin
 defaultTcPlugin = const Nothing
 
-myTcPlugin :: TcPlugin
+myTcPlugin :: TcRnTypes.TcPlugin
 myTcPlugin = TcPlugin {
 	tcPluginInit = do
 		tcPluginTrace "HelloTypecheck.Plugin: init" "baz"
