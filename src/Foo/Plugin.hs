@@ -24,6 +24,7 @@ solveFoo :: [Ct] -> [Ct] -> [Ct] -> TcPluginM TcPluginResult
 solveFoo _ _ [] = return $ TcPluginOk [] []
 solveFoo gs _ ws = do
 	tcPluginTrace "!Foo.Plugin: " $ ppr gs $$ ppr ws
+	tcPluginTrace "EvTerm of ws: " . vcat $ ppr . ctToEvTerm <$> ws
 	tcPluginTrace "lookFoo: " . cat . catMaybes $ lookFoo <$> ws
 	tcPluginTrace "lookBar: " . cat . catMaybes $ lookBar <$> ws
 	tcPluginTrace "lookBaz: " . cat . catMaybes $ lookBaz <$> ws
@@ -81,3 +82,6 @@ bazOk ct@(CDictCan _ev _cl [LitTy (StrTyLit x)] _cpsc)
 --	| x == "hello" = Just (EvExpr undefined, ct)
 	| x == "hello" = Just (EvExpr . Type . LitTy $ StrTyLit "hello", ct)
 bazOk _ = Nothing
+
+ctToEvTerm :: Ct -> EvTerm
+ctToEvTerm = EvExpr . ctEvExpr . ctEvidence
