@@ -15,5 +15,5 @@ run = print $ eval Zero
 data Foo a where
 	FooZero :: Foo a
 
-foo :: Foo a -> a
-foo FooZero = (0 :: Int)
+-- foo :: Foo a -> a
+-- foo FooZero = (0 :: Int)
