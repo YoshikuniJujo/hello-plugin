@@ -50,6 +50,8 @@ solveFoo gs _ ws = do
 	tcPluginTrace "gs: " $ ppr gs
 	tcPluginTrace "ws: " $ ppr ws
 	tcPluginTrace "lookWanted: " . cat . catMaybes $ lookWanted <$> ws
+	return $ TcPluginOk (catMaybes $ mkEvTerm <$> ws) []
+	{-
 	case ws of
 		[w] -> case getAAndInt w of
 			Just (a, i) -> return $ TcPluginOk [(evByFiatHere a i, w)] []
@@ -59,6 +61,7 @@ solveFoo gs _ ws = do
 		_ -> return $ TcPluginOk [] []
 --	return $ TcPluginOk [] []
 --	return $ TcPluginOk ((badEvTerm ,) <$> ws) []
+	-}
 
 lookWanted :: Ct -> Maybe SDoc
 lookWanted (CIrredCan (CtWanted pr dst _ns _lc) ins) = Just
@@ -79,3 +82,18 @@ lookType _ = Nothing
 aAndInt :: Type -> Maybe (Type, Type)
 aAndInt (TyConApp _ [_, _, a, i]) = Just (a, i)
 aAndInt _ = Nothing
+
+mkEvTerm :: Ct -> Maybe (EvTerm, Ct)
+mkEvTerm ct@(CNonCanonical (CtWanted (TyConApp _ [_, _, a, i]) _ _ _)) = Just (
+	EvExpr . Coercion
+		$ mkUnivCo (PluginProv "!HelloGadtsWithInt.Plugin") Nominal a i,
+	ct)
+mkEvTerm _ = Nothing
+
+{-
+evByFiat :: String -> Type -> Type -> EvTerm
+evByFiat name t1 t2 = EvExpr . Coercion $ mkUnivCo (PluginProv name) Nominal t1 t2
+
+evByFiatHere :: Type -> Type -> EvTerm
+evByFiatHere = evByFiat "!HelloGadtsWithInt.Plugin"
+-}
